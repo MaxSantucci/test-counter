@@ -17,15 +17,17 @@ function App() {
    const [count, setCount] = useState<number>(value.StartValue)
 
    const [error, setError] = useState('')
-   debugger
+
    useEffect(() => {
       let local_storage = localStorage.getItem('counter_settings')
       if(local_storage) {
          let newCounter = JSON.parse(local_storage)
+         console.log(newCounter);
          setValue(newCounter)
          setCount(newCounter.StartValue)
       }
    }, [])
+
 
    useEffect(() => {
       let local_storage = {
@@ -38,7 +40,7 @@ function App() {
 
    const saveSettings = (newSaveSettings: CounterType) => {
       setValue(newSaveSettings)
-      setCount(value.StartValue)
+      setCount(newSaveSettings.StartValue)
       setError('')
    }
 
@@ -58,22 +60,24 @@ function App() {
                saveSettings={saveSettings}
                error={error}
                setError={setError}
-               // startValue={value.StartValue}
             />
          </div>
          <div className="w-80 h-80 ml-24 border-2 border-blue-600 text-center">
             <div className="text-white text-5xl text-center p-8">
                <Scoreboard
-                  maxValue={value.MaxValue}
+                  max={value.MaxValue}
+                  start={value.StartValue}
                   count={count}
+                  error={error}
                />
             </div>
             <Button
-               maxValue={value.MaxValue}
-               startValue={value.StartValue}
+               max={value.MaxValue}
+               start={value.StartValue}
                count={count}
                addCounter={Counter}
                resetCounter={ResetCounter}
+               error={error}
             />
          </div>
       </div>

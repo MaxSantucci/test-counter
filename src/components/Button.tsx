@@ -3,13 +3,14 @@ import {SuperButton} from './SuperButton';
 
 type ButtonPropsType = {
    count: number
-   maxValue: number
-   startValue: number
+   max: number
+   start: number
    addCounter: () => void
    resetCounter: () => void
+   error: string
 }
 
-export const Button: React.FC<ButtonPropsType> = ({count, maxValue,startValue, addCounter, resetCounter}) => {
+export const Button: React.FC<ButtonPropsType> = ({count, max,start, addCounter, resetCounter, error}) => {
    const CounterHandler = () => {
       addCounter()
    }
@@ -22,12 +23,12 @@ export const Button: React.FC<ButtonPropsType> = ({count, maxValue,startValue, a
       <div className="mr-10">
          <SuperButton
             name="Increment"
-            disabled={count === maxValue}
+            disabled={count === max || error !== ""}
             onClick={CounterHandler}
          />
          <SuperButton
             name="Reset"
-            disabled={count === startValue}
+            disabled={count === start || error !== ""}
             onClick={ResetCounterHandler}
          />
       </div>
