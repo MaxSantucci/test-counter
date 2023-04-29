@@ -8,9 +8,19 @@ type ButtonPropsType = {
    addCounter: () => void
    resetCounter: () => void
    error: string
+   buttonClicked: boolean
 }
 
-export const Button: React.FC<ButtonPropsType> = ({count, max,start, addCounter, resetCounter, error}) => {
+export const Button: React.FC<ButtonPropsType> = (
+   {
+      count,
+      max,
+      start,
+      addCounter,
+      resetCounter,
+      error,
+      buttonClicked
+   }) => {
    const CounterHandler = () => {
       addCounter()
    }
@@ -23,12 +33,12 @@ export const Button: React.FC<ButtonPropsType> = ({count, max,start, addCounter,
       <div className="mr-10">
          <SuperButton
             name="Increment"
-            disabled={count === max || error !== ""}
+            disabled={!buttonClicked || count === max || error !== ''}
             onClick={CounterHandler}
          />
          <SuperButton
             name="Reset"
-            disabled={count === start || error !== ""}
+            disabled={!buttonClicked || count === start || error !== ''}
             onClick={ResetCounterHandler}
          />
       </div>

@@ -4,71 +4,68 @@ import {CounterType} from '../App';
 
 type SettingsPropsType = {
    value: CounterType
-   saveSettings: (newSaveSettings: CounterType) => void
    error: string
-   setError: (text: string) => void
-
+   onCLickSaveButton: () => void
+   valueChange: (event: ChangeEvent<HTMLInputElement>) => void
+   buttonClicked: boolean
+   setButtonClicked: (buttonClicked: boolean) => void
+   setError: (message: string) => void
 }
 
-const Settings = (props: SettingsPropsType) => {
-   const [newSaveSettings, setNewSaveSettings] = useState(props.value)
-   const [buttonClicked, setButtonClicked] = useState(false)
+const Settings: React.FC<SettingsPropsType> = ({value, error, onCLickSaveButton, valueChange, buttonClicked, setButtonClicked, setError}) => {
+   const [values, setValues] = useState(value);
+   // console.log(setValues)
 
-   useEffect(() => {
-      setNewSaveSettings(props.value)
-   }, [props.value])
-
-   useEffect(() => {
-      if(newSaveSettings.StartValue < 0 || newSaveSettings.StartValue >= newSaveSettings.MaxValue) {
-         props.setError("Incorrect value!")
-      } else {
-         props.setError('')
-      }
-   }, [newSaveSettings, props.error, props])
-
-   const onCLickSaveButton = () => {
-      props.saveSettings(newSaveSettings)
+   const onCLickSaveButtonHandler = () => {
+      onCLickSaveButton();
       setButtonClicked(false)
    }
 
-   const maxValueChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-      setNewSaveSettings({...newSaveSettings, MaxValue: Number(event.currentTarget.value)})
+   useEffect(() => {
+      console.log(values.StartValue < 0 || values.StartValue >= values.MaxValue)
+      if(value.StartValue < 0 || value.StartValue >= value.MaxValue) {
+         setError("Incorrect value!");
+      } else {
+         setError("");
+      }
+   }, [value]);
+
+   const valueChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
+      valueChange(event)
+      // setValues((prev) => ({ ...prev, [event.target.name]: event.target.value }));
       setButtonClicked(true)
    }
+   console.log(value)
 
-   const startValueChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-      setNewSaveSettings({...newSaveSettings, StartValue: Number(event.currentTarget.value)})
-      setButtonClicked(true)
-   }
-
-   console.log(props.error)
    return (
       <div className=''>
          <div className='w-252 h-180 flex flex-col justify-around p-6 font-bold border-2 border-blue-600 text-left'>
             <label className="text-blue-600 font-bold text-1xl" htmlFor="number-input">
                Max value:
                <input
-                  className={`w-20 ml-17 text-center focus:ring-blue-600 ${props.error !== "" ? "border-2 border-rose-500 bg-red-200" : ""}`}
+                  className={`w-20 ml-17 text-center focus:ring-blue-600 ${error !== "" ? "border-2 border-rose-500 bg-red-200" : ""}`}
+                  name={'MaxValue'}
                   type={'number'}
-                  value={newSaveSettings.MaxValue}
-                  onChange={maxValueChangeHandler}
+                  defaultValue={value.MaxValue}
+                  onChange={valueChangeHandler}
                />
             </label>
             <label className="text-blue-600 font-bold pr-2.5 text-1xl" htmlFor="number-input">
                Start value:
                <input
-                  className={`w-20 ml-10 focus:ring-blue-600 text-center ${props.error !== "" ? "border-2 border-rose-500 bg-red-100" : ""}`}
+                  className={`w-20 ml-10 focus:ring-blue-600 text-center ${error !== "" ? "border-2 border-rose-500 bg-red-100" : ""}`}
+                  name={'StartValue'}
                   type={'number'}
-                  value={newSaveSettings.StartValue}
-                  onChange={startValueChangeHandler}
+                  defaultValue={value.StartValue}
+                  onChange={valueChangeHandler}
                />
             </label>
          </div>
          <div className='mt-34'>
             <SuperButton
                name="Save"
-               disabled={!buttonClicked || props.error !== ""}
-               onClick={onCLickSaveButton}
+               disabled={!buttonClicked || Boolean(error)}
+               onClick={onCLickSaveButtonHandler}
             />
          </div>
       </div>
