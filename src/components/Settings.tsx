@@ -1,70 +1,78 @@
-import React, {ChangeEvent, useEffect, useState} from 'react';
+import React, {ChangeEvent, useEffect} from 'react';
 import {SuperButton} from './SuperButton';
-import {CounterType} from '../App';
+import {useAppDispatch, useAppSelector} from "../redux/store";
+import {selectButtonClicked, selectError} from "../redux/counter/selector";
+import {selectCounterSettings} from "../redux/counterSettings/selector";
+import {buttonClicked, setError} from "../redux/counter/slice";
 
 type SettingsPropsType = {
-   value: CounterType
-   saveSettings: (newSaveSettings: CounterType) => void
-   error: string
-   setError: (text: string) => void
-
+    onCLickSaveButton: () => void
+    valueChange: (event: ChangeEvent<HTMLInputElement>) => void
+    localMax: number
+    localStart: number
 }
 
-const Settings = (props: SettingsPropsType) => {
-   const [newSaveSettings, setNewSaveSettings] = useState(props.value)
+const Settings: React.FC<SettingsPropsType> =
+    ({
+         onCLickSaveButton,
+         valueChange,
+         localMax,
+         localStart
+     }) => {
+        const dispatch = useAppDispatch()
+        const counterSettings = useAppSelector(selectCounterSettings)
+        const error = useAppSelector(selectError)
+        const clicked = useAppSelector(selectButtonClicked)
 
-   useEffect(() => {
-      setNewSaveSettings(props.value)
-   }, [props.value])
 
-   useEffect(() => {
-      if(newSaveSettings.StartValue >= newSaveSettings.MaxValue) {
-         props.setError("Incorrect value")
-      } else {
-         props.setError('')
-      }
-   }, [newSaveSettings, props.error, props])
+        const onCLickSaveButtonHandler = () => {
+            onCLickSaveButton();
+            dispatch(buttonClicked(false))
+        }
 
-   const onCLickSaveButton = () => {
-      props.saveSettings(newSaveSettings)
-   }
+        useEffect(() => {
+            if (counterSettings.StartValue < 0 || counterSettings.StartValue >= counterSettings.MaxValue) {
+                dispatch(setError("Incorrect value!"));
+            } else {
+                dispatch(setError(""));
+            }
+        }, [counterSettings]);
 
-   const maxValueChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-      setNewSaveSettings({...newSaveSettings, MaxValue: Number(event.currentTarget.value)})
-   }
+        const valueChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
+            valueChange(event)
+            dispatch(buttonClicked(true))
+        }
 
-   const startValueChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-      setNewSaveSettings({...newSaveSettings, StartValue: Number(event.currentTarget.value)})
-   }
-
-   return (
-      <div className=''>
-         <div className='w-252 h-180 flex flex-col justify-around p-6 font-bold border-2 border-blue-600 text-left'>
-            <label className="text-blue-600 font-bold text-1xl" htmlFor="number-input">
+        return (
+            <div className=''>
+                <div
+                    className='w-252 h-180 flex flex-col justify-around p-6 font-bold border-2 border-blue-600 text-left'>
+                    <label className="text-blue-600 font-bold text-1xl" htmlFor="number-input">
                Max value:
                <input
-                  // value={maxValue}
-                  className='w-20 ml-17'
-                  type={'number'}
-                  value={newSaveSettings.MaxValue}
-                  onChange={maxValueChangeHandler}
+                   className={`w-20 ml-17 text-center focus:ring-blue-600 ${error !== "" ? "border-2 border-rose-500 bg-red-200" : ""}`}
+                   name={'MaxValue'}
+                   type={'number'}
+                   defaultValue={localMax || counterSettings.MaxValue}
+                   onChange={valueChangeHandler}
                />
             </label>
             <label className="text-blue-600 font-bold pr-2.5 text-1xl" htmlFor="number-input">
                Start value:
                <input
-                  className='w-20 ml-10'
-                  type={'number'}
-                  value={newSaveSettings.StartValue}
-                  onChange={startValueChangeHandler}
+                   className={`w-20 ml-10 focus:ring-blue-600 text-center ${error !== "" ? "border-2 border-rose-500 bg-red-100" : ""}`}
+                   name={'StartValue'}
+                   type={'number'}
+                   defaultValue={localStart || counterSettings.StartValue}
+                   onChange={valueChangeHandler}
                />
             </label>
          </div>
          <div className='mt-34'>
             <SuperButton
                name="Save"
-               // disabled={true}
-               onClick={onCLickSaveButton}
+               disabled={!clicked || Boolean(error)}
+               onClick={onCLickSaveButtonHandler}
             />
          </div>
       </div>

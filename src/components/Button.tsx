@@ -1,15 +1,24 @@
 import React from 'react';
 import {SuperButton} from './SuperButton';
+import {useAppSelector} from "../redux/store";
+import {selectButtonClicked, selectCounter, selectError} from "../redux/counter/selector";
+import {selectCounterSettings} from "../redux/counterSettings/selector";
 
 type ButtonPropsType = {
-   count: number
-   maxValue: number
-   startValue: number
    addCounter: () => void
    resetCounter: () => void
 }
 
-export const Button: React.FC<ButtonPropsType> = ({count, maxValue,startValue, addCounter, resetCounter}) => {
+export const Button: React.FC<ButtonPropsType> = (
+   {
+      addCounter,
+      resetCounter,
+   }) => {
+    const counterSettings = useAppSelector(selectCounterSettings)
+    let count = useAppSelector(selectCounter)
+    const error = useAppSelector(selectError)
+    const clicked = useAppSelector(selectButtonClicked)
+
    const CounterHandler = () => {
       addCounter()
    }
@@ -22,12 +31,12 @@ export const Button: React.FC<ButtonPropsType> = ({count, maxValue,startValue, a
       <div className="mr-10">
          <SuperButton
             name="Increment"
-            disabled={count === maxValue}
+            disabled={clicked || count === counterSettings.MaxValue || error !== ''}
             onClick={CounterHandler}
          />
          <SuperButton
             name="Reset"
-            disabled={count === startValue}
+            disabled={clicked || count === counterSettings.StartValue || error !== ''}
             onClick={ResetCounterHandler}
          />
       </div>
